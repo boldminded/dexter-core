@@ -1,7 +1,7 @@
 {
   "name": "boldminded/dexter-core",
   "description": "",
-  "license": "commercial",
+  "license": "proprietary",
   "require": {
     "algolia/algoliasearch-client-php": "^4.0",
     "adbario/php-dot-notation": "^3.3",
@@ -25,7 +25,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Litzinger\\DexterCore\\": "src/"
+      "BoldMinded\\DexterCore\\": "src/"
     }
   }
 }

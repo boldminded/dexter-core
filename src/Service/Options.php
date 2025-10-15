@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Service;
+namespace BoldMinded\DexterCore\Service;
 
 interface Options
 {

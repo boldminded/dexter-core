@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\DocumentParsers;
+namespace BoldMinded\DexterCore\Service\DocumentParsers;
 
 interface FileParserInterface
 {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Search;
+namespace BoldMinded\DexterCore\Service\Search;
 
-use Litzinger\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
 
 class EmbedFactory
 {

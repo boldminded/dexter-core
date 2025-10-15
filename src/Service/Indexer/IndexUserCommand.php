@@ -1,10 +1,10 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Indexer;
+namespace BoldMinded\DexterCore\Service\Indexer;
 
 use League\Pipeline\PipelineBuilder;
-use Litzinger\DexterCore\Contracts\ConfigInterface;
-use Litzinger\DexterCore\Contracts\IndexableInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\IndexableInterface;
 
 class IndexUserCommand implements IndexCommand
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Exceptions;
+namespace BoldMinded\DexterCore\Exceptions;
 
 class ConfigurationException extends \Exception
 {

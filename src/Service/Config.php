@@ -1,9 +1,9 @@
 <?php
 
-namespace Litzinger\DexterCore\Service;
+namespace BoldMinded\DexterCore\Service;
 
 use Adbar\Dot;
-use Litzinger\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
 
 class Config implements ConfigInterface
 {

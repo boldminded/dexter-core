@@ -1,9 +1,9 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\DocumentParsers;
+namespace BoldMinded\DexterCore\Service\DocumentParsers;
 
-use Litzinger\DexterCore\Service\Options;
-use Litzinger\DexterCore\Service\Provider\AIOptions;
+use BoldMinded\DexterCore\Service\Options;
+use BoldMinded\DexterCore\Service\Provider\AIOptions;
 
 class DocumentOptions implements Options
 {

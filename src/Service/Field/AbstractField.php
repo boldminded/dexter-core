@@ -1,10 +1,10 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Field;
+namespace BoldMinded\DexterCore\Service\Field;
 
-use Litzinger\DexterCore\Contracts\ConfigInterface;
-use Litzinger\DexterCore\Contracts\IndexableInterface;
-use Litzinger\DexterCore\Contracts\FieldTypeInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\IndexableInterface;
+use BoldMinded\DexterCore\Contracts\FieldTypeInterface;
 
 class AbstractField implements FieldTypeInterface
 {

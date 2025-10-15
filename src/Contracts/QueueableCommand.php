@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Contracts;
+namespace BoldMinded\DexterCore\Contracts;
 
 interface QueueableCommand
 {

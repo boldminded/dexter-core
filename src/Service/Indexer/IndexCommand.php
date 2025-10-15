@@ -1,8 +1,8 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Indexer;
+namespace BoldMinded\DexterCore\Service\Indexer;
 
-use Litzinger\DexterCore\Contracts\QueueableCommand;
+use BoldMinded\DexterCore\Contracts\QueueableCommand;
 
 interface IndexCommand extends QueueableCommand
 {

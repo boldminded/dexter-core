@@ -1,12 +1,12 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Search;
+namespace BoldMinded\DexterCore\Service\Search;
 
-use Litzinger\DexterCore\Contracts\ConfigInterface;
-use Litzinger\DexterCore\Contracts\LoggerInterface;
-use Litzinger\DexterCore\Service\Provider\AIOptions;
-use Litzinger\DexterCore\Service\Provider\AIProviderFactory;
-use Litzinger\DexterCore\Service\Provider\ProviderInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\LoggerInterface;
+use BoldMinded\DexterCore\Service\Provider\AIOptions;
+use BoldMinded\DexterCore\Service\Provider\AIProviderFactory;
+use BoldMinded\DexterCore\Service\Provider\ProviderInterface;
 
 class Advanced
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Search;
+namespace BoldMinded\DexterCore\Service\Search;
 
 use Meilisearch\Client;
-use Litzinger\DexterCore\Contracts\ConfigInterface;
-use Litzinger\DexterCore\Contracts\LoggerInterface;
+use BoldMinded\DexterCore\Contracts\ConfigInterface;
+use BoldMinded\DexterCore\Contracts\LoggerInterface;
 
 class Meilisearch implements SearchProvider
 {

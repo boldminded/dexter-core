@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Indexer;
+namespace BoldMinded\DexterCore\Service\Indexer;
 
 class Dummy implements IndexProvider
 {

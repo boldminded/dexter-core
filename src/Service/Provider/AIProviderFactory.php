@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Provider;
+namespace BoldMinded\DexterCore\Service\Provider;
 
 class AIProviderFactory
 {

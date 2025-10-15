@@ -1,6 +1,6 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Field;
+namespace BoldMinded\DexterCore\Service\Field;
 
 class TextFieldType extends AbstractTextField
 {

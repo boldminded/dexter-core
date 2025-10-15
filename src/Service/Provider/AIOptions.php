@@ -1,8 +1,8 @@
 <?php
 
-namespace Litzinger\DexterCore\Service\Provider;
+namespace BoldMinded\DexterCore\Service\Provider;
 
-use Litzinger\DexterCore\Service\Options;
+use BoldMinded\DexterCore\Service\Options;
 
 class AIOptions implements Options
 {
