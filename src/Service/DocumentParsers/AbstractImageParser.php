@@ -22,8 +22,10 @@ abstract class AbstractImageParser implements FileParserInterface
 
         $provider = AIProviderFactory::create($parseOptions->ai);
 
+        // @todo: Make this prompt configurable.
         $prompt = $parseOptions->ai->prompt . '. Return a JSON object literal with a "description" key containing the
-            description of the image, and a "tags" key containing up to 3 to 5 important keywords to categorize the image.
+            description of the image, an "altText" key with a short description of the image to serve as an html alt attribute,
+            and a "tags" key containing up to 3 to 5 important keywords to categorize the image.
             Make the keywords in title case, preferably a single word, and do not include any punctuation or special characters.
             Do not wrap the JSON object in a code block.';
 
