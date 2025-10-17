@@ -52,10 +52,7 @@ class IndexUserCommand implements IndexCommand
 
     public function getUniqueId(): string
     {
-        // EE is member_, Craft is user_
-        $prefix = defined('APP_VER') ? 'member_' : 'user_';
-
-        return $prefix . $this->indexable->getId();
+        return $this->indexable->getUniqueId();
     }
 
     public function getQueueJobName(): string

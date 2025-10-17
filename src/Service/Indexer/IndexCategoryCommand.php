@@ -52,7 +52,7 @@ class IndexCategoryCommand implements IndexCommand
 
     public function getUniqueId(): string
     {
-        return 'category_' . $this->indexable->getId();
+        return $this->indexable->getUniqueId();
     }
 
     public function getQueueJobName(): string

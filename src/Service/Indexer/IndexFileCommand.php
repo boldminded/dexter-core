@@ -52,7 +52,7 @@ class IndexFileCommand implements IndexCommand
 
     public function getUniqueId(): string
     {
-        return 'file_' . $this->indexable->getId();
+        return $this->indexable->getUniqueId();
     }
 
     public function getQueueJobName(): string
