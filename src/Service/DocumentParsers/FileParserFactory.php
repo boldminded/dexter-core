@@ -84,6 +84,12 @@ class FileParserFactory
         $whichOptions = in_array($mimeType, $this->imageMimeTypes()) ? 'Image' : 'Document';
         $prompt = $this->config->get(sprintf('parse%sContents.describePrompt', $whichOptions)) ?: 'Describe this file';
 
+        $prompt .= ' Return a JSON object literal with a "description" key containing the
+            description of the file, an "altText" key with a short description of the file to serve as an html alt attribute,
+            and a "tags" key containing up to 3 to 5 important keywords to categorize the file.
+            Make the keywords in title case, preferably a single word, and do not include any punctuation or special characters.
+            Do not wrap the JSON object in a code block.';
+
         $options['ai'] = [
             'provider' => $provider,
             'key' => $this->config->get($provider . '.key'),
