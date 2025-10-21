@@ -10,6 +10,7 @@ class DeleteFileCommand implements DeleteCommand
     public function __construct(
         public string $indexName,
         public int|string $id,
+        public int $siteId,
         public string $title,
         public string $queueJobName,
     ) {
@@ -30,6 +31,11 @@ class DeleteFileCommand implements DeleteCommand
         return $this->id;
     }
 
+    public function getSiteId(): int
+    {
+        return $this->siteId;
+    }
+
     public function getTitle(): string
     {
         return $this->title;
@@ -37,7 +43,7 @@ class DeleteFileCommand implements DeleteCommand
 
     public function getUniqueId(): string
     {
-        return 'file_' . $this->id;
+        return 'file_' . $this->siteId . '_' . $this->id;
     }
 
     public function getQueueJobName(): string

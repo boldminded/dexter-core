@@ -10,6 +10,7 @@ class DeleteUserCommand implements DeleteCommand
     public function __construct(
         public string $indexName,
         public int|string $id,
+        public int $siteId,
         public string $title,
         public string $queueJobName,
     ) {
@@ -30,6 +31,11 @@ class DeleteUserCommand implements DeleteCommand
         return $this->id;
     }
 
+    public function getSiteId(): int
+    {
+        return $this->siteId;
+    }
+
     public function getTitle(): string
     {
         return $this->title;
@@ -40,7 +46,7 @@ class DeleteUserCommand implements DeleteCommand
         // EE is member_, Craft is user_
         $prefix = defined('APP_VER') ? 'member_' : 'user_';
 
-        return $prefix . $this->id;
+        return $prefix . $this->siteId . '_' . $this->id;
     }
 
     public function getQueueJobName(): string

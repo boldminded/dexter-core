@@ -188,6 +188,7 @@ class Meilisearch implements IndexProvider
                         'title' => $command->getTitle(),
                         'payload' => [
                             'indexName' => $command->getIndexName(),
+                            'siteId' => $command->getSiteId(),
                         ],
                     ]);
 

@@ -10,6 +10,8 @@ interface DeleteCommand extends QueueableCommand
 
     public function getId(): int|string;
 
+    public function getSiteId(): int;
+
     public function getUniqueId(): string;
 
     public function getIndexName(): string;
