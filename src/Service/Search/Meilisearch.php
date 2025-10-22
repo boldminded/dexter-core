@@ -5,6 +5,8 @@ namespace BoldMinded\DexterCore\Service\Search;
 use Meilisearch\Client;
 use BoldMinded\DexterCore\Contracts\ConfigInterface;
 use BoldMinded\DexterCore\Contracts\LoggerInterface;
+use Meilisearch\Contracts\MultiSearchFederation;
+use Meilisearch\Contracts\SearchQuery;
 
 class Meilisearch implements SearchProvider
 {
@@ -51,5 +53,44 @@ class Meilisearch implements SearchProvider
     public function getClient()
     {
         return $this->client;
+    }
+
+    public function multiSearch(
+        array $queries = [],
+        ?array $federation = [],
+    ): array
+    {
+        try {
+            $searchQueries = [];
+
+            foreach ($queries as $query) {
+                $searchQueries[] = new SearchQuery($query);
+            }
+
+            $fed = (new MultiSearchFederation())
+                ->setLimit($federation['limit'] ?? null)
+                ->setOffset($federation['offset'] ?? null)
+                ->setFacetsByIndex($federation['facetsByIndex'] ?? [])
+                ->setMergeFacets($federation['mergeFacets'] ?? []);
+
+            $results = $this->client->multiSearch($searchQueries, $fed);
+
+            $hits = $results->getHits();
+
+            if ($this->config->get('enableAdvancedSearch') === true) {
+                $filteredHits = (new Advanced($this->config, $this->logger))->search(
+                    $query,
+                    $hits
+                );
+
+                return $filteredHits;
+            }
+
+            return $hits;
+        } catch (\Throwable $exception) {
+            $this->logger->debug($exception->getMessage());
+        }
+
+        return [];
     }
 }
