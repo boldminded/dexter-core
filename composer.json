@@ -2,6 +2,7 @@
   "name": "boldminded/dexter-core",
   "description": "",
   "license": "proprietary",
+  "version": "1.0.5",
   "require": {
     "algolia/algoliasearch-client-php": "^4.0",
     "adbario/php-dot-notation": "^3.3",
