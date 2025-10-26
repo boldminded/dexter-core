@@ -14,8 +14,8 @@ class AIOptions implements Options
         public ?string $model = null,
         public ?string $embedModel = null,
         public ?float $temperature = null,
-        public ?int $frequencyPenalty = null,
-        public ?int $presencePenalty = null,
+        public ?float $frequencyPenalty = null,
+        public ?float $presencePenalty = null,
         public ?int $maxTokens = null,
     ) {
     }
@@ -30,8 +30,8 @@ class AIOptions implements Options
             $options['model'] ?? 'gpt-4o',
             $options['embedModel'] ?? 'text-embedding-3-small',
             $options['temperature'] ?? 0.7,
-            $options['frequencyPenalty'] ?? 0,
-            $options['presencePenalty'] ?? 0,
+            $options['frequencyPenalty'] ?? 0.0,
+            $options['presencePenalty'] ?? 0.0,
             $options['maxTokens'] ?? 300,
         );
     }
