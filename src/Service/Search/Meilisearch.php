@@ -21,59 +21,20 @@ class Meilisearch implements SearchProvider
         $this->logger = $logger;
     }
 
-    public function search(
-        string $index,
-        string $query = '',
-        array|string $filter = [],
-        int $perPage = 50
-    ): array {
-        try {
-            $index = $this->client->index($index);
-            $results = $index->search($query, $filter);
-
-            $hits = $results->getHits();
-
-            if ($this->config->get('enableAdvancedSearch') === true) {
-                $filteredHits = (new Advanced($this->config, $this->logger))->search(
-                    $query,
-                    $hits
-                );
-
-                return $filteredHits;
-            }
-
-            return $hits;
-        } catch (\Throwable $exception) {
-            $this->logger->debug($exception->getMessage());
-        }
-
-        return [];
-    }
-
     public function getClient()
     {
         return $this->client;
     }
 
-    public function multiSearch(
-        array $queries = [],
-        ?array $federation = [],
-    ): array
-    {
+    public function search(
+        string $index,
+        string $query = '',
+        array|string $searchParams = [],
+        int $limit = 100
+    ): array {
         try {
-            $searchQueries = [];
-
-            foreach ($queries as $query) {
-                $searchQueries[] = new SearchQuery($query);
-            }
-
-            $fed = (new MultiSearchFederation())
-                ->setLimit($federation['limit'] ?? null)
-                ->setOffset($federation['offset'] ?? null)
-                ->setFacetsByIndex($federation['facetsByIndex'] ?? [])
-                ->setMergeFacets($federation['mergeFacets'] ?? []);
-
-            $results = $this->client->multiSearch($searchQueries, $fed);
+            $index = $this->client->index($index);
+            $results = $index->search($query, $searchParams);
 
             $hits = $results->getHits();
 
@@ -92,5 +53,70 @@ class Meilisearch implements SearchProvider
         }
 
         return [];
+    }
+
+    public function multiSearch(
+        array $queries = [],
+        string $query = '',
+        array $federation = [],
+        int $limit = 100
+    ): array {
+        try {
+            $searchQueries = [];
+
+            foreach ($queries as $i => $q) {
+                // indexUid is official param name, make indexName optional for cross functionality with Algolia
+                $indexName = $q['indexName'] ?? $q['indexUid'] ?? '';
+
+                if ($indexName === '') {
+                    $this->logger->warning("multiSearch: missing indexUid at queries[$i]");
+                    continue;
+                }
+
+                $sq = new SearchQuery();
+                $sq->setIndexUid($indexName);
+
+                // If query/term is not set on each query, use the shared one
+                $sq->setQuery((string) ($q['q'] ?? $query));
+
+                // Optional params commonly used. Add more as you need.
+                if (isset($q['filter']))                { $sq->setFilter($q['filter']); }
+                if (isset($q['limit']))                 { $sq->setLimit((int) $q['limit']); }
+                if (isset($q['offset']))                { $sq->setOffset((int) $q['offset']); }
+                if (isset($q['hitsPerPage']))           { $sq->setHitsPerPage((int) $q['hitsPerPage']); }
+                if (isset($q['page']))                  { $sq->setPage((int) $q['page']); }
+                if (isset($q['attributesToRetrieve']))  { $sq->setAttributesToRetrieve($q['attributesToRetrieve']); }
+                if (isset($q['attributesToHighlight'])) { $sq->setAttributesToHighlight($q['attributesToHighlight']); }
+                if (isset($q['facets']))                { $sq->setFacets($q['facets']); }
+                if (isset($q['sort']))                  { $sq->setSort($q['sort']); }
+                if (isset($q['matchingStrategy']))      { $sq->setMatchingStrategy($q['matchingStrategy']); }
+                if (isset($q['showRankingScore']))      { $sq->setShowRankingScore((bool) $q['showRankingScore']); }
+                if (isset($q['showMatchesPosition']))   { $sq->setShowMatchesPosition((bool) $q['showMatchesPosition']); }
+
+                $searchQueries[] = $sq;
+            }
+
+            if ($searchQueries === []) {
+                return [];
+            }
+
+            $fed = null;
+            $hasFed = array_intersect(array_keys($federation), ['limit','offset','facetsByIndex','mergeFacets']) !== [];
+
+            if ($hasFed) {
+                $fed = new MultiSearchFederation();
+                if (isset($federation['limit']))         { $fed->setLimit((int) $federation['limit']); }
+                if (isset($federation['offset']))        { $fed->setOffset((int) $federation['offset']); }
+                if (isset($federation['facetsByIndex'])) { $fed->setFacetsByIndex($federation['facetsByIndex']); }
+                if (isset($federation['mergeFacets']))   { $fed->setMergeFacets($federation['mergeFacets']); }
+            }
+
+            $results = $this->client->multiSearch($searchQueries, $fed);
+
+            return $results['hits'] ?? [];
+        } catch (\Throwable $exception) {
+            $this->logger->debug($exception->getMessage());
+            return [];
+        }
     }
 }

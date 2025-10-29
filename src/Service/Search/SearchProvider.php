@@ -9,11 +9,14 @@ interface SearchProvider
     public function search(
         string $index,
         string $query = '',
-        array|string $filter = [],
-        int $perPage = 50
+        array|string $searchParams = [],
+        int $limit = 100
     ): array;
 
     public function multiSearch(
         array $queries = [],
+        string $query = '',
+        array $federation = [],
+        int $limit = 100
     ): array;
 }
