@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d4555cb0cee941b1369d4efe8e148e01",
+    "content-hash": "6061a9e6f74f466127d15c7e42eb1415",
     "packages": [
         {
             "name": "adbario/php-dot-notation",
@@ -126,6 +126,223 @@
                 "source": "https://github.com/algolia/algoliasearch-client-php/tree/4.26.0"
             },
             "time": "2025-07-29T14:33:37+00:00"
+        },
+        {
+            "name": "cmsig/seal",
+            "version": "0.12.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-CMSIG/seal.git",
+                "reference": "bd27cdab23635816c90b9550312883743d26dc6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-CMSIG/seal/zipball/bd27cdab23635816c90b9550312883743d26dc6c",
+                "reference": "bd27cdab23635816c90b9550312883743d26dc6c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "replace": {
+                "schranz-search/seal": "self.version"
+            },
+            "require-dev": {
+                "php-cs-fixer/shim": "^3.51",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpunit/phpunit": "^10.3",
+                "rector/rector": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CmsIg\\Seal\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Schranz",
+                    "email": "alexander@sulu.io"
+                }
+            ],
+            "description": "Search Engine Abstraction Layer",
+            "keywords": [
+                "abstraction",
+                "algolia",
+                "cmsig",
+                "elasticsearch",
+                "meilisearch",
+                "opensearch",
+                "redisearch",
+                "seal",
+                "search",
+                "search-abstraction",
+                "search-client",
+                "solr",
+                "typesense"
+            ],
+            "support": {
+                "source": "https://github.com/PHP-CMSIG/seal/tree/0.12.3"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/L91",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/alexander-schranz",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-09-22T05:48:44+00:00"
+        },
+        {
+            "name": "cmsig/seal-algolia-adapter",
+            "version": "0.12.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-CMSIG/seal-algolia-adapter.git",
+                "reference": "bf15d0a29ab59c65ef0162872a989504849c7b2c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-CMSIG/seal-algolia-adapter/zipball/bf15d0a29ab59c65ef0162872a989504849c7b2c",
+                "reference": "bf15d0a29ab59c65ef0162872a989504849c7b2c",
+                "shasum": ""
+            },
+            "require": {
+                "algolia/algoliasearch-client-php": "^4.4",
+                "cmsig/seal": "^0.12",
+                "php": "^8.1",
+                "psr/container": "^1.0 || ^2.0"
+            },
+            "replace": {
+                "schranz-search/seal-algolia-adapter": "self.version"
+            },
+            "require-dev": {
+                "php-cs-fixer/shim": "^3.51",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpunit/phpunit": "^10.3",
+                "rector/rector": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CmsIg\\Seal\\Adapter\\Algolia\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Schranz",
+                    "email": "alexander@sulu.io"
+                }
+            ],
+            "description": "An adapter to support algolia in cmsig/seal search abstraction.",
+            "keywords": [
+                "algolia",
+                "cmsig",
+                "seal",
+                "seal-adapter",
+                "search-client"
+            ],
+            "support": {
+                "source": "https://github.com/PHP-CMSIG/seal-algolia-adapter/tree/0.12.2"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/L91",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/alexander-schranz",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-18T07:52:34+00:00"
+        },
+        {
+            "name": "cmsig/seal-meilisearch-adapter",
+            "version": "0.12.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHP-CMSIG/seal-meilisearch-adapter.git",
+                "reference": "320fe29db9f0517d783f958b8ea7487078c2c3c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHP-CMSIG/seal-meilisearch-adapter/zipball/320fe29db9f0517d783f958b8ea7487078c2c3c5",
+                "reference": "320fe29db9f0517d783f958b8ea7487078c2c3c5",
+                "shasum": ""
+            },
+            "require": {
+                "cmsig/seal": "^0.12",
+                "meilisearch/meilisearch-php": "^1.2",
+                "php": "^8.1",
+                "psr/container": "^1.0 || ^2.0"
+            },
+            "replace": {
+                "schranz-search/seal-meilisearch-adapter": "self.version"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "^7.5",
+                "http-interop/http-factory-guzzle": "^1.0",
+                "php-cs-fixer/shim": "^3.51",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.10",
+                "phpstan/phpstan-phpunit": "^1.3",
+                "phpunit/phpunit": "^10.3",
+                "rector/rector": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "CmsIg\\Seal\\Adapter\\Meilisearch\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexander Schranz",
+                    "email": "alexander@sulu.io"
+                }
+            ],
+            "description": "An adapter to support meilisearch in cmsig/seal search abstraction.",
+            "keywords": [
+                "cmsig",
+                "meilisearch",
+                "seal",
+                "seal-adapter",
+                "search-client"
+            ],
+            "support": {
+                "source": "https://github.com/PHP-CMSIG/seal-meilisearch-adapter/tree/0.12.2"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/L91",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/alexander-schranz",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-08-18T07:52:34+00:00"
         },
         {
             "name": "guzzlehttp/psr7",

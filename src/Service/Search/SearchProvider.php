@@ -19,4 +19,16 @@ interface SearchProvider
         array $federation = [],
         int $limit = 100
     ): array;
+
+    /**
+     * Execute a search using a common JSON payload built from a Twig template.
+     * Expected keys (subset): index, q, filters, sort, limit, offset, highlight, distinct, facets.
+     */
+    public function searchFromJson(array $filter): array;
+
+    /**
+     * Execute a multi-index search using a common JSON payload.
+     * Expected keys: query, queries[], federation (limit, offset, weights, ...).
+     */
+    public function multiSearchFromJson(array $payload): array;
 }
