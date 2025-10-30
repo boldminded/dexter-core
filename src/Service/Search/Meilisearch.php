@@ -14,8 +14,11 @@ class Meilisearch implements SearchProvider
     private ConfigInterface $config;
     private LoggerInterface $logger;
 
-    public function __construct(Client $client, ConfigInterface $config, LoggerInterface $logger)
-    {
+    public function __construct(
+        Client $client,
+        ConfigInterface $config,
+        LoggerInterface $logger,
+    ) {
         $this->client = $client;
         $this->config = $config;
         $this->logger = $logger;
@@ -65,11 +68,10 @@ class Meilisearch implements SearchProvider
             $searchQueries = [];
 
             foreach ($queries as $i => $q) {
-                // indexUid is official param name, make indexName optional for cross functionality with Algolia
-                $indexName = $q['indexName'] ?? $q['indexUid'] ?? '';
+                $indexName = Normalizer::indexName($q);
 
                 if ($indexName === '') {
-                    $this->logger->warning("multiSearch: missing indexUid at queries[$i]");
+                    $this->logger->warning("multiSearch: missing index, indexName, or indexUid at queries[$i]");
                     continue;
                 }
 
@@ -92,6 +94,14 @@ class Meilisearch implements SearchProvider
                 if (isset($q['matchingStrategy']))      { $sq->setMatchingStrategy($q['matchingStrategy']); }
                 if (isset($q['showRankingScore']))      { $sq->setShowRankingScore((bool) $q['showRankingScore']); }
                 if (isset($q['showMatchesPosition']))   { $sq->setShowMatchesPosition((bool) $q['showMatchesPosition']); }
+
+                // Forward vector options if supported by the installed SDK version.
+                if (isset($q['retrieveVectors']) && method_exists($sq, 'setRetrieveVectors')) {
+                    $sq->setRetrieveVectors((bool) $q['retrieveVectors']);
+                }
+                if (isset($q['vector']) && method_exists($sq, 'setVector')) {
+                    $sq->setVector($q['vector']); // expects numeric array
+                }
 
                 $searchQueries[] = $sq;
             }

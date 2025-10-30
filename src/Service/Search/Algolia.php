@@ -37,7 +37,7 @@ class Algolia implements SearchProvider
             $results = $this->client->search([
                 'requests' => [
                     array_merge([
-                        'index' => $index,
+                        'indexName' => $index,
                         'query' => $query,
                         'hitsPerPage' => $limit,
                     ], $searchParams),
@@ -76,14 +76,18 @@ class Algolia implements SearchProvider
             unset($federation['limit']);
 
             foreach ($queries as $i => $q) {
-                if (empty($q['indexName'])) {
+                $indexName = Normalizer::indexName($q);
+                $q['indexName'] = $indexName;
+                unset($q['index'], $q['indexUid']);
+
+                if (!$indexName) {
                     $this->logger->warning("multiSearch: missing indexName at queries[$i]");
                     continue;
                 }
 
                 // Allow for flexibility and similarities with Meilisearch
-                $q['query'] = $q['q'] ?? $query;
-                unset($q['q']);
+                $q['query'] = Normalizer::searchQuery($q);
+                unset($q['q'], $q['term']);
 
                 // Algolia doesn't have a federation feature, but we're going to do something similar.
                 // Use the fed array as an option to apply the same settings to all queries without having to repeat them.
@@ -104,7 +108,7 @@ class Algolia implements SearchProvider
             // Build a flat pool with a naive score = weight * 1/(rank+1)
             $pool = [];
             foreach ($results['results'] as $i => $res) {
-                $indexName = $queries[$i]['indexName'];
+                $indexName = Normalizer::indexName($queries[$i]);
                 $w = $weights[$indexName] ?? 1.0;
 
                 foreach ($res['hits'] as $rank => $hit) {
