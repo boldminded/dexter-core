@@ -5,6 +5,7 @@ namespace BoldMinded\DexterCore\Service\Search;
 use Meilisearch\Client;
 use BoldMinded\DexterCore\Contracts\ConfigInterface;
 use BoldMinded\DexterCore\Contracts\LoggerInterface;
+use Meilisearch\Contracts\HybridSearchOptions;
 use Meilisearch\Contracts\MultiSearchFederation;
 use Meilisearch\Contracts\SearchQuery;
 
@@ -40,6 +41,8 @@ class Meilisearch implements SearchProvider
             $results = $index->search($query, $searchParams);
 
             $hits = $results->getHits();
+
+            $hits = $this->filterByRankingScore($hits, $searchParams);
 
             if ($this->config->get('enableAdvancedSearch') === true) {
                 $filteredHits = (new Advanced($this->config, $this->logger))->search(
@@ -95,6 +98,13 @@ class Meilisearch implements SearchProvider
                 if (isset($q['showRankingScore']))      { $sq->setShowRankingScore((bool) $q['showRankingScore']); }
                 if (isset($q['showMatchesPosition']))   { $sq->setShowMatchesPosition((bool) $q['showMatchesPosition']); }
 
+                if (isset($q['hybrid'])) {
+                    $sq->setHybrid((new HybridSearchOptions())
+                        ->setEmbedder($q['hybrid']['embedder'] ?? '')
+                        ->setSemanticRatio($q['hybrid']['semanticRatio'] ?? '')
+                    );
+                }
+
                 // Forward vector options if supported by the installed SDK version.
                 if (isset($q['retrieveVectors']) && method_exists($sq, 'setRetrieveVectors')) {
                     $sq->setRetrieveVectors((bool) $q['retrieveVectors']);
@@ -123,10 +133,28 @@ class Meilisearch implements SearchProvider
 
             $results = $this->client->multiSearch($searchQueries, $fed);
 
-            return $results['hits'] ?? [];
+            $hits = $results['hits'] ?? [];
+
+            $hits = $this->filterByRankingScore($hits, $federation);
+
+            return $hits;
         } catch (\Throwable $exception) {
             $this->logger->debug($exception->getMessage());
             return [];
         }
+    }
+
+    private function filterByRankingScore(array $hits, array $searchParams = []): array
+    {
+        $minScore = $this->config->get('minimumRankingScore') ?? 0;
+        $showRankingScore = Normalizer::rankingScore($searchParams);
+
+        if ($showRankingScore && $minScore > 0) {
+            $hits = array_values(array_filter($hits, fn($h) =>
+                ($h['_rankingScore'] ?? 0) >= $minScore
+            ));
+        }
+
+        return $hits;
     }
 }

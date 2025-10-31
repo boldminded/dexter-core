@@ -268,7 +268,12 @@ class Algolia implements IndexProvider
     public function import(string $indexName, array $settings): bool
     {
         $basicSettings = $settings['settings'] ?? [];
-        $basicSettings['mode'] = $this->config->get('algolia.mode') ?: 'keywordSearch';
+
+        if ($this->config->get('enableSemanticSearch') === true) {
+            $basicSettings['mode'] = 'neuralSearch';
+        } else {
+            $basicSettings['mode'] = $this->config->get('algolia.mode') ?: 'keywordSearch';
+        }
 
         if (!empty($basicSettings)) {
             $this->client->setSettings($indexName, $basicSettings);

@@ -46,6 +46,8 @@ class Algolia implements SearchProvider
 
             $hits = $results['results'][0]['hits'] ?? [];
 
+            $hits = $this->filterByRankingScore($hits, $searchParams);
+
             if ($this->config->get('enableAdvancedSearch') === true) {
                 $filteredHits = (new Advanced($this->config, $this->logger))->search(
                     $query,
@@ -121,10 +123,27 @@ class Algolia implements SearchProvider
             usort($pool, fn($a, $b) => $b['_score'] <=> $a['_score']);
             $blended = array_slice($pool, 0, $federation['hitsPerPage'] ?? $limit);
 
+            $blended = $this->filterByRankingScore($blended, $federation);
+
             return $blended;
         } catch (\Throwable $exception) {
             $this->logger->debug($exception->getMessage());
             return [];
         }
+    }
+
+    private function filterByRankingScore(array $hits, array $searchParams = []): array
+    {
+        $minScore = $this->config->get('minimumRankingScore') ?? 0;
+        $showRankingScore = Normalizer::rankingScore($searchParams);
+
+        if ($showRankingScore && $minScore > 0) {
+            $hits = array_values(array_filter(
+                $hits,
+                fn($h) => ($h['_rankingInfo']['neuralScore'] ?? 0) >= $minScore
+            ));
+        }
+
+        return $hits;
     }
 }

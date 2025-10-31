@@ -8,6 +8,7 @@ use BoldMinded\DexterCore\Contracts\ConfigInterface;
 use BoldMinded\DexterCore\Contracts\LoggerInterface;
 use BoldMinded\DexterCore\Contracts\QueueInterface;
 use BoldMinded\DexterCore\Contracts\TranslatorInterface;
+use Meilisearch\Contracts\TasksQuery;
 
 class Meilisearch implements IndexProvider
 {
@@ -310,6 +311,15 @@ class Meilisearch implements IndexProvider
         return $collection;
     }
 
+    public function getTasks(): array
+    {
+        $query = (new TasksQuery())->setStatuses(['succeeded', 'failed', 'processing']);
+
+        $response = $this->client->getTasks($query);
+
+        return $response['results'] ?? [];
+    }
+
     private function createIndex(string $indexName): bool
     {
         try {
@@ -335,11 +345,16 @@ class Meilisearch implements IndexProvider
 
     public function import(string $indexName, array $settings): bool
     {
-        if ($this->config->get('enableContextSearch') === true) {
+        $this->createIndex($indexName);
+        return $this->updateSettings($indexName, $settings);
+    }
+
+    private function updateSettings(string $indexName, array $settings): bool
+    {
+        if ($this->config->get('enableSemanticSearch') === true) {
             $settings['embedders'] = $this->prepareEmbedderSettings();
         }
 
-        $this->createIndex($indexName);
         $task = $this->client->index($indexName)->updateSettings(new Settings($settings));
         $response = $this->client->waitForTask($task['taskUid']);
 
@@ -353,7 +368,8 @@ class Meilisearch implements IndexProvider
         return [
             'fullText' => [
                 'apiKey' => $this->config->get($provider . '.key'),
-                'documentTemplate' => "'{{ doc.__full_text }}'",
+                'documentTemplate' => "Title: {{ doc.title }}\n\nBody:\n{{ doc.__full_text }}",
+                'documentTemplateMaxBytes' => 4000,
                 'model' => $this->config->get($provider . '.embedModel', 'text-embedding-3-small'),
                 'source' => $provider,
             ]

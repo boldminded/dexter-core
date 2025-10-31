@@ -13,4 +13,9 @@ final readonly class Normalizer
     {
         return $params['term'] ?? $params['query'] ?? $params['q'] ?? '';
     }
+
+    public static function rankingScore(array $params): string
+    {
+        return $params['showRankingScore'] ?? $params['getRankingInfo'] ?? '';
+    }
 }
