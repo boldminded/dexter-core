@@ -140,7 +140,14 @@ class Algolia implements SearchProvider
         if ($showRankingScore && $minScore > 0) {
             $hits = array_values(array_filter(
                 $hits,
-                fn($h) => ($h['_rankingInfo']['neuralScore'] ?? 0) >= $minScore
+                function ($hit) use ($minScore) {
+                    // neuralSearch is not enabled
+                    if (!isset($hit['_rankingInfo']['neuralScore'])) {
+                        return true;
+                    }
+
+                    return $hit['_rankingInfo']['neuralScore'] >= $minScore;
+                }
             ));
         }
 
