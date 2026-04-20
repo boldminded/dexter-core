@@ -5,6 +5,7 @@ namespace BoldMinded\DexterCore\Service\Search;
 use Meilisearch\Client;
 use BoldMinded\DexterCore\Contracts\ConfigInterface;
 use BoldMinded\DexterCore\Contracts\LoggerInterface;
+use Meilisearch\Contracts\FederationOptions;
 use Meilisearch\Contracts\HybridSearchOptions;
 use Meilisearch\Contracts\MultiSearchFederation;
 use Meilisearch\Contracts\SearchQuery;
@@ -103,6 +104,17 @@ class Meilisearch implements SearchProvider
                         ->setEmbedder($q['hybrid']['embedder'] ?? '')
                         ->setSemanticRatio($q['hybrid']['semanticRatio'] ?? '')
                     );
+                }
+
+                if (isset($q['federationOptions'])) {
+                    $fo = new FederationOptions();
+                    if (isset($q['federationOptions']['weight'])) {
+                        $fo->setWeight((float) $q['federationOptions']['weight']);
+                    }
+                    if (isset($q['federationOptions']['remote'])) {
+                        $fo->setRemote((string) $q['federationOptions']['remote']);
+                    }
+                    $sq->setFederationOptions($fo);
                 }
 
                 // Forward vector options if supported by the installed SDK version.
