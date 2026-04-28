@@ -38,12 +38,16 @@ class Meilisearch implements SearchProvider
         int $limit = 100
     ): array {
         try {
+            if (($this->config->get('minimumRankingScore') ?? 0) > 0) {
+                $searchParams['showRankingScore'] = true;
+            }
+
             $index = $this->client->index($index);
             $results = $index->search($query, $searchParams);
 
             $hits = $results->getHits();
 
-            $hits = $this->filterByRankingScore($hits, $searchParams);
+            $hits = $this->filterByRankingScore($hits);
 
             if ($this->config->get('enableAdvancedSearch') === true) {
                 $filteredHits = (new Advanced($this->config, $this->logger))->search(
@@ -71,6 +75,8 @@ class Meilisearch implements SearchProvider
         try {
             $searchQueries = [];
 
+            $injectRankingScore = ($this->config->get('minimumRankingScore') ?? 0) > 0;
+
             foreach ($queries as $i => $q) {
                 $indexName = Normalizer::indexName($q);
 
@@ -96,7 +102,7 @@ class Meilisearch implements SearchProvider
                 if (isset($q['facets']))                { $sq->setFacets($q['facets']); }
                 if (isset($q['sort']))                  { $sq->setSort($q['sort']); }
                 if (isset($q['matchingStrategy']))      { $sq->setMatchingStrategy($q['matchingStrategy']); }
-                if (isset($q['showRankingScore']))      { $sq->setShowRankingScore((bool) $q['showRankingScore']); }
+                if ($injectRankingScore || isset($q['showRankingScore'])) { $sq->setShowRankingScore($injectRankingScore || (bool) $q['showRankingScore']); }
                 if (isset($q['showMatchesPosition']))   { $sq->setShowMatchesPosition((bool) $q['showMatchesPosition']); }
 
                 if (isset($q['hybrid'])) {
@@ -147,7 +153,7 @@ class Meilisearch implements SearchProvider
 
             $hits = $results['hits'] ?? [];
 
-            $hits = $this->filterByRankingScore($hits, $federation);
+            $hits = $this->filterByRankingScore($hits);
 
             return $hits;
         } catch (\Throwable $exception) {
@@ -156,12 +162,11 @@ class Meilisearch implements SearchProvider
         }
     }
 
-    private function filterByRankingScore(array $hits, array $searchParams = []): array
+    private function filterByRankingScore(array $hits): array
     {
         $minScore = $this->config->get('minimumRankingScore') ?? 0;
-        $showRankingScore = Normalizer::rankingScore($searchParams);
 
-        if ($showRankingScore && $minScore > 0) {
+        if ($minScore > 0) {
             $hits = array_values(array_filter($hits, fn($h) =>
                 ($h['_rankingScore'] ?? 0) >= $minScore
             ));

@@ -34,6 +34,10 @@ class Algolia implements SearchProvider
         int $limit = 100
     ): array {
         try {
+            if (($this->config->get('minimumRankingScore') ?? 0) > 0) {
+                $searchParams['getRankingInfo'] = true;
+            }
+
             $results = $this->client->search([
                 'requests' => [
                     array_merge([
@@ -46,7 +50,7 @@ class Algolia implements SearchProvider
 
             $hits = $results['results'][0]['hits'] ?? [];
 
-            $hits = $this->filterByRankingScore($hits, $searchParams);
+            $hits = $this->filterByRankingScore($hits);
 
             if ($this->config->get('enableAdvancedSearch') === true) {
                 $filteredHits = (new Advanced($this->config, $this->logger))->search(
@@ -74,6 +78,8 @@ class Algolia implements SearchProvider
         try {
             $searchQueries = [];
 
+            $injectRankingScore = ($this->config->get('minimumRankingScore') ?? 0) > 0;
+
             $federation['hitsPerPage'] ??= $federation['limit'] ?? $limit;
             unset($federation['limit']);
 
@@ -93,14 +99,21 @@ class Algolia implements SearchProvider
 
                 // Algolia doesn't have a federation feature, but we're going to do something similar.
                 // Use the fed array as an option to apply the same settings to all queries without having to repeat them.
-                $searchQueries[] = array_merge(
-                    $q,
-                    $federation,
-                );
+                $merged = array_merge($q, $federation);
+                if ($injectRankingScore) {
+                    $merged['getRankingInfo'] = true;
+                }
+                $searchQueries[] = $merged;
             }
 
             if ($searchQueries === []) {
                 return [];
+            }
+
+            $weights = [];
+            foreach ($queries as $q) {
+                $indexName = Normalizer::indexName($q);
+                $weights[$indexName] = (float) ($q['federationOptions']['weight'] ?? 1.0);
             }
 
             $results = $this->client->search([
@@ -123,7 +136,7 @@ class Algolia implements SearchProvider
             usort($pool, fn($a, $b) => $b['_score'] <=> $a['_score']);
             $blended = array_slice($pool, 0, $federation['hitsPerPage'] ?? $limit);
 
-            $blended = $this->filterByRankingScore($blended, $federation);
+            $blended = $this->filterByRankingScore($blended);
 
             return $blended;
         } catch (\Throwable $exception) {
@@ -132,16 +145,15 @@ class Algolia implements SearchProvider
         }
     }
 
-    private function filterByRankingScore(array $hits, array $searchParams = []): array
+    private function filterByRankingScore(array $hits): array
     {
         $minScore = $this->config->get('minimumRankingScore') ?? 0;
-        $showRankingScore = Normalizer::rankingScore($searchParams);
 
-        if ($showRankingScore && $minScore > 0) {
+        if ($minScore > 0) {
             $hits = array_values(array_filter(
                 $hits,
                 function ($hit) use ($minScore) {
-                    // neuralSearch is not enabled
+                    // neuralSearch is not enabled, no score to filter on
                     if (!isset($hit['_rankingInfo']['neuralScore'])) {
                         return true;
                     }

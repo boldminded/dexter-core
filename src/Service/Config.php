@@ -62,7 +62,7 @@ class Config implements ConfigInterface
 
             $value = array_map(function ($indexName) use ($env, $suffix) {
                 return $env . '_' . $indexName . $suffix;
-            }, $value);
+            }, $value ?? []);
         } else if (is_callable($value)) {
             return call_user_func($value, $index, $values);
         }
