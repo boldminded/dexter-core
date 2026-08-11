@@ -11,12 +11,12 @@ class AbstractTextField implements FieldTypeInterface
     public function process(
         IndexableInterface $indexable,
         ConfigInterface $config,
-        int $fieldId,
+        int|string $fieldId,
         array $fieldSettings,
         $fieldValue,
         $fieldFacade = null
     ): mixed {
-        return strip_tags($value ?? '');
+        return strip_tags($fieldValue ?? '');
     }
 
     public function setsMultipleProperties(): bool

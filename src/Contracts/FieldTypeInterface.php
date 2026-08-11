@@ -7,7 +7,7 @@ interface FieldTypeInterface
     public function process(
         IndexableInterface $indexable,
         ConfigInterface $config,
-        int $fieldId,
+        int|string $fieldId,
         array $fieldSettings,
         mixed $fieldValue,
         $fieldFacade = null
