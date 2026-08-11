@@ -12,7 +12,7 @@ interface IndexCommand extends QueueableCommand
 
     public function getValues(): array;
 
-    public function getId(): int;
+    public function getId(): int|string;
 
     public function getUniqueId(): string;
 
