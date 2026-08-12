@@ -27,7 +27,7 @@ class AIOptions implements Options
             $options['prompt'] ?? null,
             $options['key'] ?? null,
             $options['secret'] ?? null,
-            $options['model'] ?? 'gpt-4o',
+            $options['model'] ?? null,
             $options['embedModel'] ?? 'text-embedding-3-small',
             $options['temperature'] ?? 0.7,
             $options['frequencyPenalty'] ?? 0.0,

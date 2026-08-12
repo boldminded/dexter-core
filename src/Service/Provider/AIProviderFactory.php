@@ -14,6 +14,10 @@ class AIProviderFactory
             return new OpenAIProvider($options);
         }
 
+        if ($options->provider === 'openRouter' && $options->key) {
+            return new OpenRouterProvider($options);
+        }
+
         throw new \InvalidArgumentException('Invalid options provided for AI provider.');
     }
 }
