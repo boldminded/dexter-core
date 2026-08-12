@@ -45,7 +45,7 @@ class IndexUserCommand implements IndexCommand
         return $this->indexable->getValues();
     }
 
-    public function getId(): int
+    public function getId(): int|string
     {
         return $this->indexable->getId();
     }

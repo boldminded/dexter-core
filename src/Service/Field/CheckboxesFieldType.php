@@ -10,7 +10,7 @@ class CheckboxesFieldType extends AbstractField
     public function process(
         IndexableInterface $indexable,
         ConfigInterface $config,
-        int $fieldId,
+        int|string $fieldId,
         array $fieldSettings,
         $fieldValue,
         $fieldFacade = null
