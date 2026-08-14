@@ -110,6 +110,13 @@ class Algolia implements IndexProvider
 
         $indexerResponse = new IndexerResponse();
 
+        // Documents are grouped by index name here and sent once per index
+        // after the loop.
+        //
+        // Sending inside the loop re-sent every document accumulated so far on
+        // every iteration -- n(n+1)/2 document writes for n commands -- and
+        // sent them to whichever index the current command happened to name,
+        // which is wrong as soon as one collection spans several indexes.
         /** @var IndexCommand $command */
         foreach ($collection->getCommands() as $command) {
             $values = $command->execute();
@@ -117,32 +124,36 @@ class Algolia implements IndexProvider
 
             if (!$indexName) {
                 $indexerResponse->addError($indexName . 'invalid');
+
+                continue;
             }
 
             if (empty($values)) {
-                $deleteObjects[] = $command->getUniqueId();
+                $deleteObjects[$indexName][] = $command->getUniqueId();
             } else {
-                $saveObjects[] = array_merge([
+                $saveObjects[$indexName][] = array_merge([
                     $this->config->get('primaryKey', $indexName, $values) => $command->getUniqueId()
                 ], $values);
             }
+        }
 
+        $saved = 0;
+        $deleted = 0;
+
+        foreach (array_keys($saveObjects + $deleteObjects) as $indexName) {
             try {
-                if (!$indexName) {
-                    $indexerResponse->addError($indexName . 'invalid');
+                // Deletes first, so a document removed by one command and
+                // re-saved by a later one in the same collection ends up
+                // saved rather than deleted by an ordering accident.
+                if (!empty($deleteObjects[$indexName])) {
+                    $this->client->deleteObjects($indexName, $deleteObjects[$indexName]);
+                    $deleted += count($deleteObjects[$indexName]);
                 }
 
-                if (!empty($deleteObjects)) {
-                    $this->client->deleteObjects($indexName, $deleteObjects);
+                if (!empty($saveObjects[$indexName])) {
+                    $this->client->saveObjects($indexName, $saveObjects[$indexName]);
+                    $saved += count($saveObjects[$indexName]);
                 }
-
-                if (!empty($saveObjects)) {
-                    $this->client->saveObjects($indexName, $saveObjects);
-                }
-
-                $indexerResponse
-                    ->setSaved(count($saveObjects))
-                    ->setDeleted(count($deleteObjects));
             } catch (\Exception $e) {
                 $this->logger->debug($e->getMessage());
 
@@ -151,6 +162,8 @@ class Algolia implements IndexProvider
                     ->addError($e->getMessage());
             }
         }
+
+        $indexerResponse->setSaved($saved)->setDeleted($deleted);
 
         if (count($indexerResponse->getErrors()) > 0) {
             $indexerResponse->setSuccess(false);

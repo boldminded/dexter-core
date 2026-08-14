@@ -124,6 +124,15 @@ class Meilisearch implements IndexProvider
 
         $indexerResponse = new IndexerResponse();
 
+        // Documents are grouped by index name here and sent once per index
+        // after the loop.
+        //
+        // Sending inside the loop re-sent every document accumulated so far on
+        // every iteration -- n(n+1)/2 document writes for n commands -- and
+        // sent them to whichever index the current command happened to name,
+        // which is wrong as soon as one collection spans several indexes.
+        $primaryKeys = [];
+
         /** @var IndexCommand $command */
         foreach ($collection->getCommands() as $command) {
             $values = $command->execute();
@@ -131,33 +140,47 @@ class Meilisearch implements IndexProvider
 
             if (!$indexName) {
                 $indexerResponse->addError($indexName . 'invalid');
+
+                continue;
             }
+
+            // Resolved per index rather than once: the primary key is
+            // configurable per index, and a collection may span several.
+            $primaryKeys[$indexName] = $this->config->get('primaryKey', $indexName, $values);
 
             if (empty($values)) {
-                $deleteObjects[] = $command->getUniqueId();
+                $deleteObjects[$indexName][] = $command->getUniqueId();
             } else {
-                $saveObjects[] = array_merge([
-                    $this->config->get('primaryKey', $indexName, $values) => $command->getUniqueId()
+                $saveObjects[$indexName][] = array_merge([
+                    $primaryKeys[$indexName] => $command->getUniqueId()
                 ], $values);
             }
+        }
 
+        $saved = 0;
+        $deleted = 0;
+
+        foreach (array_keys($saveObjects + $deleteObjects) as $indexName) {
             try {
-                $primaryKey = $this->config->get('primaryKey', $indexName, $values);
-
                 $this->createIndex($indexName);
 
-                if (!empty($deleteObjects)) {
-                    $this->client->index($indexName)->deleteDocuments($deleteObjects);
-                    $indexerResponse->setDeleted(count($deleteObjects));
+                // Deletes first, so a document removed by one command and
+                // re-saved by a later one in the same collection ends up
+                // saved rather than deleted by an ordering accident.
+                if (!empty($deleteObjects[$indexName])) {
+                    $this->client->index($indexName)->deleteDocuments($deleteObjects[$indexName]);
+                    $deleted += count($deleteObjects[$indexName]);
                 }
 
-                if (!empty($saveObjects)) {
-                    $task = $this->client->index($indexName)->addDocuments($saveObjects, $primaryKey);
+                if (!empty($saveObjects[$indexName])) {
+                    $task = $this->client
+                        ->index($indexName)
+                        ->addDocuments($saveObjects[$indexName], $primaryKeys[$indexName]);
 
                     $response = $this->client->waitForTask($task['taskUid']);
 
                     if ($response['status'] === 'succeeded') {
-                        $indexerResponse->setSaved(count($saveObjects));
+                        $saved += count($saveObjects[$indexName]);
                     }
 
                     if ($response['error']) {
@@ -169,6 +192,8 @@ class Meilisearch implements IndexProvider
                 $indexerResponse->addError($e->getMessage());
             }
         }
+
+        $indexerResponse->setSaved($saved)->setDeleted($deleted);
 
         if (count($indexerResponse->getErrors()) > 0) {
             $indexerResponse->setSuccess(false);
