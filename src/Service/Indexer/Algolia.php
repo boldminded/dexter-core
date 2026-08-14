@@ -163,7 +163,9 @@ class Algolia implements IndexProvider
             }
         }
 
-        $indexerResponse->setSaved($saved)->setDeleted($deleted);
+        $indexerResponse
+            ->setSaved($saved)
+            ->setDeleted($deleted);
 
         if (count($indexerResponse->getErrors()) > 0) {
             $indexerResponse->setSuccess(false);

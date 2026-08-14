@@ -123,14 +123,6 @@ class Meilisearch implements IndexProvider
         }
 
         $indexerResponse = new IndexerResponse();
-
-        // Documents are grouped by index name here and sent once per index
-        // after the loop.
-        //
-        // Sending inside the loop re-sent every document accumulated so far on
-        // every iteration -- n(n+1)/2 document writes for n commands -- and
-        // sent them to whichever index the current command happened to name,
-        // which is wrong as soon as one collection spans several indexes.
         $primaryKeys = [];
 
         /** @var IndexCommand $command */
@@ -193,7 +185,9 @@ class Meilisearch implements IndexProvider
             }
         }
 
-        $indexerResponse->setSaved($saved)->setDeleted($deleted);
+        $indexerResponse
+            ->setSaved($saved)
+            ->setDeleted($deleted);
 
         if (count($indexerResponse->getErrors()) > 0) {
             $indexerResponse->setSuccess(false);
