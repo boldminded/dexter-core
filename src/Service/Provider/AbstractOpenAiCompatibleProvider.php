@@ -45,7 +45,40 @@ abstract class AbstractOpenAiCompatibleProvider implements ProviderInterface
             'max_tokens' => $this->options->maxTokens ?? 300,
         ]);
 
-        return $response->choices[0]->message->content ?? '';
+        return $this->stripCodeFence($response->choices[0]->message->content ?? '');
+    }
+
+    /**
+     * Callers expect a bare JSON literal, but models routinely wrap it in a
+     * markdown fence regardless of the prompt telling them not to. Unwrap it
+     * so json_decode() does not simply return null.
+     *
+     * Content that is not fenced is returned untouched.
+     */
+    protected function stripCodeFence(string $content): string
+    {
+        $trimmed = trim($content);
+
+        if (!str_starts_with($trimmed, '```')) {
+            return $content;
+        }
+
+        // The opening fence may carry a language hint (```json), so drop that
+        // whole line, then the closing fence. Fences inside the payload are left
+        // alone: only the outermost wrapper is removed.
+        $unwrapped = preg_replace('/\A```[a-zA-Z0-9_+-]*[ \t]*\R?/', '', $trimmed, 1);
+
+        if ($unwrapped === null) {
+            return $content;
+        }
+
+        $unwrapped = preg_replace('/\R?[ \t]*```[ \t]*\z/', '', $unwrapped, 1);
+
+        if ($unwrapped === null) {
+            return $content;
+        }
+
+        return trim($unwrapped);
     }
 
     protected function getImageDescription(string $prompt, string $url): string
@@ -80,6 +113,6 @@ abstract class AbstractOpenAiCompatibleProvider implements ProviderInterface
             'max_tokens' => $this->options->maxTokens ?? 300,
         ]);
 
-        return $response->choices[0]->message->content ?? '';
+        return $this->stripCodeFence($response->choices[0]->message->content ?? '');
     }
 }
