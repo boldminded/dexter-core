@@ -4,6 +4,7 @@ namespace BoldMinded\DexterCore\Service;
 
 use BoldMinded\DexterCore\Contracts\ConfigInterface;
 use BoldMinded\DexterCore\Contracts\LoggerInterface;
+use BoldMinded\DexterCore\Contracts\IndexableFileInterface;
 use BoldMinded\DexterCore\Contracts\IndexableInterface;
 use BoldMinded\DexterCore\Service\DocumentParsers\FileParserFactory;
 
@@ -32,8 +33,15 @@ class FileDescriber
             return '';
         }
 
+        // An image on a host no AI provider can reach is inlined as a data URI,
+        // so describing works on local and firewalled sites. Non-images and
+        // publicly reachable URLs are returned unchanged.
+        $url = $indexable instanceof IndexableFileInterface
+            ? (new ImageInliner($this->config))->resolveUrl($indexable)
+            : $indexable->getAbsoluteUrl();
+
         $pathOptions = [
-            $indexable->getAbsoluteUrl(),
+            $url,
             $indexable->getAbsolutePath(),
         ];
 
