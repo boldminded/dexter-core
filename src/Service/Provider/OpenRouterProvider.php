@@ -5,6 +5,8 @@ namespace BoldMinded\DexterCore\Service\Provider;
 use OpenAI;
 use OpenAI\Contracts\ClientContract;
 use BoldMinded\DexterCore\Service\Options;
+use Http\Discovery\Psr17FactoryDiscovery;
+use Http\Discovery\Psr18ClientDiscovery;
 
 /**
  * OpenRouter (https://openrouter.ai) exposes an OpenAI-compatible Chat Completions
@@ -24,6 +26,13 @@ class OpenRouterProvider extends AbstractOpenAiCompatibleProvider
             // Recommended by OpenRouter for attribution and ranking on openrouter.ai.
             ->withHttpHeader('HTTP-Referer', 'https://boldminded.com/add-ons/dexter')
             ->withHttpHeader('X-Title', 'Dexter')
+            // OpenRouter omits the OpenAI-specific token-detail keys that
+            // openai-php requires, which would throw while deserializing an
+            // otherwise successful (and already billed) response.
+            ->withHttpClient(new OpenRouterResponseSanitizer(
+                Psr18ClientDiscovery::find(),
+                Psr17FactoryDiscovery::findStreamFactory(),
+            ))
             ->make();
     }
 

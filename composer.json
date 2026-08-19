@@ -13,7 +13,9 @@
     "smalot/pdfparser": "^2.12",
     "phpoffice/phpword": "^1.4",
     "openai-php/client": "^0.10.3",
-    "league/mime-type-detection": "^1.16"
+    "league/mime-type-detection": "^1.16",
+    "php-http/discovery": "^1.20",
+    "symfony/http-client": "^7.4"
   },
   "config": {
     "preferred-install": "dist",
